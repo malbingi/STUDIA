@@ -54,7 +54,7 @@ for i in range(_ITERACJE):
         temp = 0.0
         T_CR = -1
         index_of_a3 = 0
-    
+    print(A1, A2, A3)
     delta_ro = A1*_EPSILON_DOT - A2*_EPSILON_DOT*historia_ro[-1] - A3*temp*pow(historia_ro[-1], vector_a[7])*historia_ro[index_of_a3]
     
     RO_0 += delta_ro*_KROK_CZASOWY
