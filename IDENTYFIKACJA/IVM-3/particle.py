@@ -4,7 +4,7 @@ import numpy as np
 class Particle():
     def __init__(self):
         self.position = np.array([
-            r.uniform(2.0 * pow(10, -3), 2.2 * pow(10, -3) ),
+            r.uniform(0.002, 0.0025),
             r.uniform(175.0, 177.0),
             r.uniform(19.4 * pow(10, 3), 19.6 * pow(10, 3)),
             r.uniform(0.0001 * 3 * pow(10, 10), 0.0002 * 3 * pow(10, 10)),
@@ -30,29 +30,70 @@ class Particle():
         self.limit_vector()
     
     def limit_vector(self):
-        if self.position[0] < 0 or self.position[0] > 0.001:
-            self.position[0] *= 0.99
-        if self.position[1] < 10 or self.position[1] > 500:
-            self.position[1] *= 0.99
-        if self.position[2] < 1000 or self.position[2] > 100_000:
-            self.position[2] *= 0.99
-        if self.position[3] < 0 or self.position[3] > 3000000000:
-            self.position[3] *= 0.99
-        if self.position[4] < 10_000 or self.position[4] > 500_000:
-            self.position[4] *= 0.99
+        if self.position[0] < 0.0:
+            self.position[0] *= -1.
+        if self.position[0] > 0.01:
+            self.position[0] *= 0.5
+        
+        if self.position[1] < 0.0:
+            self.position[1] *= -1.
+
+        if self.position[1] < 10.:
+            self.position[1] += 10.
+        if self.position[1] > 500.:
+            self.position[1] *= 0.5
+
+        if self.position[2] < 0.0:
+                self.position[2] *= -1.
+        if self.position[2] < 1000.0:
+            self.position[2] += 1000.
+        if self.position[2] > 100_000.0:
+            self.position[2] *= 0.5
+        
+        if self.position[3] < 0.0: 
+            self.position[3] *= -1.
+        if self.position[3] > 3000000000.0:
+            self.position[3] *= 0.5
+            
+        if self.position[4] < 0.0:
+            self.position[4] *= -1.
+        if self.position[4] < 10_000.0:
+            self.position[4] += 10_000.0
+        if self.position[4] > 500_000.0:
+            self.position[4] *= 0.5
+            
         if self.position[5] != 0.973:
             self.position[5] = 0.973
+        
         if self.position[6] != 5.77:
             self.position[6] = 5.77
-        if self.position[7] < 0 or self.position[7] > 10:
-            self.position[7] *= 0.99
-        if self.position[8] < 0 or self.position[8] > 10:
-            self.position[8] *= 0.99
-        if self.position[9] < 0 or self.position[9] > 1:
-            self.position[9] *= 0.99
-        if self.position[10] < 0 or self.position[10] > 10_000_000_000_000:
-            self.position[10] *= 0.99
-        if self.position[11] < 0 or self.position[11] > 1_000_000_000_000:
-            self.position[11] *= 0.99
-        if self.position[12] < 0 or self.position[12] > 1:
-            self.position[12] *= 0.99
+        
+        if self.position[7] < 0.0:
+            self.position[7] *= -1.
+        if self.position[7] > 10.0:
+            self.position[7] *= 0.5
+        
+        if self.position[8] < 0.0:
+            self.position[8] *= -1.
+        if self.position[8] > 10.0:
+            self.position[8] *= 0.5
+        
+        if self.position[9] < 0.0:
+            self.position[9] *= -1.
+        if self.position[9] > 1.0:
+            self.position[9] *= 0.5
+                
+        if self.position[10] < 0.0:
+            self.position[10] *= -1.
+        if self.position[10] > 10_000_000_000_000.0:
+            self.position[10] *= 0.5
+        
+        if self.position[11] < 0.0:
+            self.position[11] *= -1.
+        if self.position[11] > 1_000_000_000_000.0:
+            self.position[11] *= 0.5
+        
+        if self.position[12] < 0.0 :
+            self.position[12] *= -1.
+        if self.position[12] > 1.0:
+            self.position[12] *= 0.5

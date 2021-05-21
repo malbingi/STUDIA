@@ -1,4 +1,3 @@
-from math import sqrt
 import random as r 
 import numpy as np
 from func import call

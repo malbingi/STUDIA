@@ -1,4 +1,5 @@
 from math import pow, exp
+from saveToFile import saveToFile as save
 
 Q = 238_000.0
 R = 8.3144
@@ -32,7 +33,7 @@ def ivm_calculations(vector_a, Temp, _EPSILON_DOT):
             if T_CR == -1:
                 T_CR = i
             index_of_a3 = i - T_CR
-            print(A3, temp, historia_ro[-1], vector_a[7], historia_ro[index_of_a3])
+            #print(A3, temp, historia_ro[-1], vector_a[7], historia_ro[index_of_a3])
             last_step = A3*temp*pow(historia_ro[-1], vector_a[7])*historia_ro[index_of_a3]
         else:
             temp = 0.0
