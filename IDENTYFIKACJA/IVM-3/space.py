@@ -3,8 +3,8 @@ import numpy as np
 from func import call
 
 W = 0.5
-c1 = 2.1
-c2 = 5.1
+c1 = 2.0  #1,5 lub 1,0
+c2 = 2.0  # 1,5 lub 1,0
 
 class Space():
     def __init__(self, target, epsilon, num_particles):
@@ -14,7 +14,7 @@ class Space():
         self.particles = []
         self.gbest_value = float('inf')
         self.gbest_position = np.array([
-            r.uniform(2.0 * pow(10, -3), 2.2 * pow(10, -3) ),
+            r.uniform(0.0018, 0.0025),
             r.uniform(175.0, 177.0),
             r.uniform(19.4 * pow(10, 3), 19.6 * pow(10, 3)),
             r.uniform(0.0001 * 3 * pow(10, 10), 0.0002 * 3 * pow(10, 10)),
@@ -23,10 +23,10 @@ class Space():
             r.uniform(5.7, 5.8),
             r.uniform(0.8, 1.2),
             r.uniform(0.0, 0.1),
-            r.uniform(0.2, 0.3),
+            0.0,
             r.uniform(0.0 * pow(10, 13), 0.1 * pow(10, 13)),
             r.uniform(0.0005 * pow(10, 13) ,0.0007 * pow(10, 13)),
-            r.uniform(0.1, 0.2)
+            r.uniform(0.15, 0.2)
         ])
         
     def print_particles(self):
@@ -56,4 +56,3 @@ class Space():
             new_velocity = W*p.velocity + c1*r.random()*(p.pbest_position-p.position) + r.random()*c2*(self.gbest_position - p.position)
             p.velocity = new_velocity
             p.move()
-            

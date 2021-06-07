@@ -2,7 +2,6 @@ from math import pow
 from ivm import ivm_calculations
 from saveToFile import saveToFile
 
-
 def call(vector_a):
     returned_value = 0.0
     for i in range(9):
@@ -10,14 +9,12 @@ def call(vector_a):
         value_to_be_divided_by_m = 0.0
         for j in range(len(dict_experiment[i])):
             experiment = dict_experiment[i][j]
-            formula = ivm_calculations(vector_a, T, epsilon_dot, time)
-            try:
+            formula, boolean = ivm_calculations(vector_a, T, epsilon_dot, time)
+            if abs(formula - pow(10,8))*100 > pow(10,13) or boolean:
+                value_to_be_divided_by_m += (abs(formula - pow(10,8)) * 100)
+            else:
                 value_to_be_divided_by_m += pow((experiment-formula)/experiment, 2)
-            except:
-                print(value_to_be_divided_by_m, 
-                    formula,
-                    experiment)
-        value_to_be_divided_by_m /= len(dict_experiment[i])
+        value_to_be_divided_by_m /= float(len(dict_experiment[i]))
         returned_value += value_to_be_divided_by_m
     return returned_value/9
 

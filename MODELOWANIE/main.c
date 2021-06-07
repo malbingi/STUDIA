@@ -81,56 +81,42 @@ void collideAndStream(double *c, double *tc) {
         fsw = c[AR(x, y, _SW)];
         fnw = c[AR(x, y, _NW)];
         fne = c[AR(x, y, _NE)];
-      // moments
-        double m_rho, m_e, m_eps, m_jx, m_jy, m_qx, m_qy, m_pxx, m_pxy;
-        double m_rhoe, m_ee, m_epse, m_jxe, m_jye, m_qxe, m_qye, m_pxxe, m_pxye;
-        m_rho = rho;
-        m_jx = rho * ux;
-        m_jy = rho * uy;
-        m_e = -(4.0 * fc + fe + fn + fw + fs) + 2.0 * (fne + fnw + fse + fsw);
-        m_eps = (4.0 * fc + fne + fnw + fse + fsw) - 2.0 * (fe + fn + fw + fs);
-        m_qx = 2.0 * (fw - fe) + fne - fnw - fsw + fse;
-        m_qy = 2.0 * (fs - fn) + fne + fnw - fsw - fse;
-        m_pxx = fe - fn + fw - fs;
-        m_pxy = fne - fnw + fsw - fse;
-      // equilibria
-        m_rhoe = rho;
-        m_jxe = rho * ux;
-        m_jye = rho * uy;
 
-        m_ee = rho * (-2.0 + 3.0 * (ux * ux + uy * uy));
-        m_epse = rho * (1.0 - 3.0 * (ux * ux + uy * uy));
-        m_qxe = -rho * ux;
-        m_qye = -rho * uy;
-        m_pxxe = rho * (ux * ux - uy * uy);
-        m_pxye = rho * ux * uy;
+        double P, NE, V, kxxyy, UP, RIGHT, NP, fi_NW, fi_W, fi_SW, fi_S, fi_SE, fi_E, fi_NE, fi_N, fi_C;
 
-        double om_e, om_eps, om_q, om_nu;
-        om_e = 1.63;
-        om_eps = 1.54;
-        om_q = 1.0;
-        om_nu = 1.0 / tau;
+        P = 1.f / 12.f * (rho * (ux * ux + uy * uy) - fe - fn - fs - fw - 2 * (fse + fsw + fne + fnw - 1.f / 3.f * rho));
 
-        //collision
+        NE = .25f / tau * (fn + fs - fe - fw + rho * (ux * ux - uy * uy));
 
-        m_e += om_e * (m_ee - m_e);
-        m_eps += om_eps * (m_epse - m_eps);
-        m_qx += om_q * (m_qxe - m_qx);
-        m_qy += om_q * (m_qye - m_qy);
-        m_pxx += om_nu * (m_pxxe - m_pxx);
-        m_pxy += om_nu * (m_pxye - m_pxy);
+        V = .25f / tau * ((fne + fsw - fnw - fse) - ux * uy * rho);
 
-        fstar[_C] = 1. / 9. * (m_rho - m_e + m_eps);
-        fstar[_E] = 1. / 36. * (4. * m_rho - m_e - 2. * m_eps) + 1. / 6. * (m_jx - m_qx) + m_pxx * .25;
-        fstar[_N] = 1. / 36. * (4. * m_rho - m_e - 2. * m_eps) + 1. / 6. * (m_jy - m_qy) - m_pxx * .25;
-        fstar[_W] = 1. / 36. * (4. * m_rho - m_e - 2. * m_eps) + 1. / 6. * (-m_jx + m_qx) + m_pxx * .25;
-        fstar[_S] = 1. / 36. * (4. * m_rho - m_e - 2. * m_eps) + 1. / 6. * (-m_jy + m_qy) - m_pxx * .25;
-        fstar[_NE] = 1. / 36. * (4. * m_rho + 2. * m_e + m_eps) + 1. / 12. * (2. * m_jx + 2. * m_jy + (m_qx + m_qy)) + m_pxy * .25;   
-        fstar[_NW] = 1. / 36. * (4. * m_rho + 2. * m_e + m_eps) + 1. / 12. * (-2. * m_jx + 2. * m_jy + (-m_qx + m_qy)) - m_pxy * .25; 
-        fstar[_SW] = 1. / 36. * (4. * m_rho + 2. * m_e + m_eps) - 1. / 12. * (2. * m_jx + 2. * m_jy + (m_qx + m_qy)) + m_pxy * .25;   
-        fstar[_SE] = 1. / 36. * (4. * m_rho + 2. * m_e + m_eps) + 1. / 12. * (2. * m_jx - 2. * m_jy + (m_qx - m_qy)) - m_pxy * .25;   
+        kxxyy = (fe + fne + fnw + fse + fsw + fw - ux * ux * rho + 2 * NE + 6 * P) / rho * (fn + fne + fnw + fs + fse + fsw - uy * uy * rho - 2 * NE + 6 * P) / rho;
 
+        UP = (-(.25f * (fse + fsw - fne - fnw - 2 * ux * ux * uy * rho + uy * (rho - fn - fs - fc)) - uy * .5f * (-3.f * P - NE) + ux * ((fne - fnw - fse + fsw) * .5f - 2 * V)));
 
+        RIGHT = (-(.25f * (fsw + fnw - fse - fne - 2 * uy * uy * ux * rho + ux * (rho - fc - fw - fe)) - ux * .5f * (-3.f * P + NE) + uy * ((fne + fsw - fse - fnw) * .5f - 2 * V)));
+
+        NP = (.25f * (rho * (kxxyy)-fne - fnw - fse - fsw - 8 * P + 2 * (ux * (fne - fnw + fse - fsw - 4 * RIGHT) + uy * (fne + fnw - fse - fsw - 4 * UP)) + 4 * ux * uy * (-fne + fnw + fse - fsw + 4 * V) + ux * ux * (-fn - fne - fnw - fs - fse - fsw + 2 * NE - 6 * P) + uy * uy * ((-fe - fne - fnw - fse - fsw - fw - 2 * NE - 6 * P) + 3 * ux * ux * rho)));
+
+        fnw += 2 * P + NP + V - UP + RIGHT;
+        fw += -P - 2 * NP + NE - 2 * RIGHT;
+        fsw += 2 * P + NP - V + UP + RIGHT;
+        fs += -P - 2 * NP - NE - 2 * UP;
+        fse += 2 * P + NP + V + UP - RIGHT;
+        fe += -P - 2 * NP + NE + 2 * RIGHT;
+        fne += 2 * P + NP - V - UP - RIGHT;
+        fn += -P - 2 * NP - NE + 2 * UP;
+        fc += (4 * (-P + NP));
+
+        fstar[_C] = fc;
+        fstar[_E] = fe;
+        fstar[_W] = fw;
+        fstar[_N] = fn;
+        fstar[_S] = fs;
+        fstar[_NE] = fne;
+        fstar[_NW] = fnw;
+        fstar[_SW] = fsw;
+        fstar[_SE] = fse;
       }
       else { // bounce back
         fstar[_E] = c[AR(x,y, _W)];
@@ -174,11 +160,18 @@ void setInitialConditions(double *c, double rhoi, double uxi, double uyi){
         Uy[ARM(x,y)] = uyi;
       }
       map[ARM(x,y)] = 0;
-      if ( ( x==0)  || (x == LX-1) || (y == 0) ){
+      if ( ( x==0)  || (x == LX-1) || (y == 0)){
         map[ARM(x,y)] = 1;
         Rho[ARM(x,y)] = 0.;
         Ux[ARM(x,y)] = 0.;
         Uy[ARM(x,y)] = 0.;
+      }
+      if ((x > 10) || (x < 25) && (y > 10) || (y < 25))
+      {
+        map[ARM(x, y)] = 1;
+        Rho[ARM(x, y)] = 0.;
+        Ux[ARM(x, y)] = 0.;
+        Uy[ARM(x, y)] = 0.;
       }
     }
   }
@@ -233,14 +226,14 @@ int main(int argc, char **argv){
   uxiLB = 0.0;
   uyiLB = 0.0;
 
-  Re = 256000.0;
+  Re = 1e5;
   Ma = 0.1;
 
   rhoLB_IN = 1.;
   uxLB_IN = Ma*sqrt(cs_sq);
   uyLB_IN = 0.0; 
   
-  nuLB = uxLB_IN*LY/Re;
+  nuLB = 0*uxLB_IN*LY/Re;
  
   tau = nuLB/cs_sq + .5;
   dx = 1. / (double)LX;
