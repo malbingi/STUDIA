@@ -58,66 +58,74 @@ def penalty(vector):
 
 def limit_vector(vector, i):
     ret = False
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] > 0.01:
-        ret = True
+    if i == 0:
+        if vector[i] < 0.0:
+            ret = True
+        if vector[i] > 0.01:
+            ret = True
 
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] < 10.:
-        ret = True
-    if vector[i] > 500.:
-        ret = True
+    if i == 1:
+        if vector[i] < 10.:
+            ret = True
+        if vector[i] > 500.:
+            ret = True
 
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] < 1000.0:
-        ret = True
-    if vector[i] > 100_000.0:
-        ret = True
+    if i == 2:
+        if vector[i] < 1000.0:
+            ret = True
+        if vector[i] > 100_000.0:
+            ret = True
 
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] > 3000000000.0:
-        ret = True
+    if i == 3:
+        if vector[i] < 0.0:
+            ret = True
+        if vector[i] > 3000000000.0:
+            ret = True
 
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] < 10_000.0:
-        ret = True
-    if vector[i] > 500_000.0:
-        ret = True
+    if i == 4:
+        if vector[i] < 10_000.0:
+            ret = True
+        if vector[i] > 500_000.0:
+            ret = True
 
-    if vector[i] != 0.973:
-        ret = True
-    if vector[i] != 5.77:
-        ret = True
+    if i == 5:
+        if vector[i] != 0.973:
+            ret = True
 
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] > 1.0:
-        ret = True
+    if i == 6:
+        if vector[i] != 5.77:
+            ret = True
 
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] > 10.0:
-        ret = True
+    if i == 7:
+        if vector[i] < 0.9:
+            ret = True
+        if vector[i] > 1.0:
+            ret = True
 
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] > 1.0:
-        ret = True
+    if i == 8:
+        if vector[i] < 0.0:
+            ret = True
+        if vector[i] > 10.0:
+            ret = True
 
-    if vector[i] != 0:
-        ret = True
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] > 1_000_000_000_000.0:
-        ret = True
+    if i == 9:
+        if vector[i] < 0.0:
+            ret = True
+        if vector[i] > 1.0:
+            ret = True
 
-    if vector[i] < 0.0:
-        ret = True
-    if vector[i] > 1.0:
-        ret = True
+    if i == 10:
+        if vector[i] != 0:
+            ret = True
+
+    if i == 11:
+        if vector[i] < 0.0:
+            ret = True
+        if vector[i] > 1_000_000_000_000.0:
+            ret = True
+    if i == 12:
+        if vector[i] < 0.0:
+            ret = True
+        if vector[i] > 1.0:
+            ret = True
     return ret

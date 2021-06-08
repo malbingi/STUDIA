@@ -8,7 +8,7 @@ epsilon = 0.1
 
 
 def main():
-    search_space = s.Space(optimization_target, epsilon, 100)
+    search_space = s.Space(optimization_target, epsilon, 20)
     particles_vector = [p.Particle()
                         for _ in range(search_space.num_particles)]
     search_space.particles = particles_vector
@@ -31,8 +31,8 @@ def main():
 
         #print("POŁOŻENIE: ", search_space.gbest_position, " WARTOŚĆ: ", search_space.gbest_value)
 
-        saveToFile(search_space.gbest_value, "main_18_100.csv")
-        saveToFile(search_space.gbest_position, "coordinates_18_100.csv")
+        saveToFile(search_space.gbest_value, "main_19_20.csv")
+        saveToFile(search_space.gbest_position, "coordinates_19_20.csv")
 
         if iteration > 10:
             if abs(search_space.gbest_value - search_space.target) <= search_space.epsilon or val_prev_1 == val_prev:
