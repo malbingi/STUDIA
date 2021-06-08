@@ -41,12 +41,9 @@ def main():
         search_space.move_particles()
         iteration += 1
     #print("Solution: ", search_space.gbest_position, " value ", search_space.gbest_value)
+    return search_space.gbest_position
 
-def calculate_based_on_vector():
-    vector = [2.45212129e-03,  1.76819149e+02,  1.93909885e+04,  1.20589593e+07,
-              1.38080807e+05,  9.73000000e-01,  5.77000000e+00,  6.36456556e-01,
-              - 5.70121100e-02, - 5.13174918e-01,  0.00000000e+00, 8.82004319e+09,
-              9.90984827e-03]
+def calculate_based_on_vector(vector):
     dict_T_epsilon_dot = {
         0: [950.0, 0.1, 10.0],
         1: [1050.0, 0.1, 10.0],
@@ -77,5 +74,5 @@ def calculate_based_on_vector():
 
 
 if __name__ == "__main__":
-    #main()
-    calculate_based_on_vector()
+    vector = main()
+    calculate_based_on_vector(vector)
