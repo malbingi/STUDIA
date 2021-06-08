@@ -1,6 +1,5 @@
 from math import pow
 from ivm import ivm_calculations
-from saveToFile import saveToFile
 
 def call(vector_a):
     returned_value = 0.0

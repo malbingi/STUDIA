@@ -4,9 +4,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#define LX 128 
+#define LX 512 
 #define LY 128  
 #define F 9
+#define A 32
 
 #define M_PI 3.14159265358979323846
 #define cs_sq (1. / 3.)
@@ -45,106 +46,112 @@ double fEq(int i, double rho, double ux, double uy) {
     return rho*w[i]*(1. + cu + 0.5*cu*cu - 0.5*(ux*ux+uy*uy)/cs_sq);;
 }
 
-void collideAndStream(double *c, double *tc) {
-  int i,x,y,xp,xm,yp,ym;
-  double rho,ux,uy, fstar[F];
+void collideAndStream(double *c, double *tc)
+{
+  int x, y, i, xm, ym, xp, yp;
+
+  double rho, ux, uy, fstar[F];
+
   for (y = 0; y < LY; y++)
-    for (x = 0; x < LX; x++){
-      rho = 0; ux = 0; uy = 0;
-      if (map[ARM(x,y)] != 1) {
-        if (y==LY-1 ){
-          for (i = 0; i < F; i++)
-            c[AR(x,y,i)] = fEq(i, rhoLB_IN, uxLB_IN, uyLB_IN);
+    for (x = 0; x < LX; x++)
+    {
+      // 0. BC
+
+      /*if ((y == LY - 1) && (x != 0) && (x != LX - 1))
+        for (i = 0; i < F; i++)
+          c[AR(x, y, i)] = fEq(i, rhoLB_IN, uxLB_IN, uyLB_IN);*/
+      if ((x == 0) && !map[ARM(x, y)]) {
+        for(i = 0; i < F; i++) {
+          c[AR(x, y, i)] = fEq(i, rhoLB_IN, uxLB_IN, uyLB_IN);
         }
-        for (i = 0; i < F; i++){
-            rho += c[AR(x,y,i)];
-            ux += c[AR(x,y,i)]*cx[i];
-            uy += c[AR(x,y,i)]*cy[i];
+      }
+      if((x == LX-1) && !map[ARM(x, y)]) {
+        for(i = 0; i < F; i++) {
+          c[AR(x, y, i)] = c[AR(x - 1, y, i)];
         }
-        ux /= rho;
-        uy /= rho;
-        Rho[ARM(x,y)] = rho;
-        Ux[ARM(x,y)] = ux;
-        Uy[ARM(x,y)] = uy;
-        //kolizja
-        /*for (i = 0; i < F ; i++){
-          fstar[i]= (1. - 1. / tau) * c[AR(x, y, i)] + 1. / tau * fEq(i, rho, ux, uy);  
-        }*/
-      // TUTAJ KOLIZJA ZMIENIONA
-        double fe, fc, fw, fs, fn, fsw, fse, fnw, fne;
-        fc = c[AR(x, y, _C)];
-        fs = c[AR(x, y, _S)];
-        fn = c[AR(x, y, _N)];
-        fw = c[AR(x, y, _W)];
-        fe = c[AR(x, y, _E)];
-        fse = c[AR(x, y, _SE)];
-        fsw = c[AR(x, y, _SW)];
-        fnw = c[AR(x, y, _NW)];
-        fne = c[AR(x, y, _NE)];
-
-        double P, NE, V, kxxyy, UP, RIGHT, NP, fi_NW, fi_W, fi_SW, fi_S, fi_SE, fi_E, fi_NE, fi_N, fi_C;
-
-        P = 1.f / 12.f * (rho * (ux * ux + uy * uy) - fe - fn - fs - fw - 2 * (fse + fsw + fne + fnw - 1.f / 3.f * rho));
-
-        NE = .25f / tau * (fn + fs - fe - fw + rho * (ux * ux - uy * uy));
-
-        V = .25f / tau * ((fne + fsw - fnw - fse) - ux * uy * rho);
-
-        kxxyy = (fe + fne + fnw + fse + fsw + fw - ux * ux * rho + 2 * NE + 6 * P) / rho * (fn + fne + fnw + fs + fse + fsw - uy * uy * rho - 2 * NE + 6 * P) / rho;
-
-        UP = (-(.25f * (fse + fsw - fne - fnw - 2 * ux * ux * uy * rho + uy * (rho - fn - fs - fc)) - uy * .5f * (-3.f * P - NE) + ux * ((fne - fnw - fse + fsw) * .5f - 2 * V)));
-
-        RIGHT = (-(.25f * (fsw + fnw - fse - fne - 2 * uy * uy * ux * rho + ux * (rho - fc - fw - fe)) - ux * .5f * (-3.f * P + NE) + uy * ((fne + fsw - fse - fnw) * .5f - 2 * V)));
-
-        NP = (.25f * (rho * (kxxyy)-fne - fnw - fse - fsw - 8 * P + 2 * (ux * (fne - fnw + fse - fsw - 4 * RIGHT) + uy * (fne + fnw - fse - fsw - 4 * UP)) + 4 * ux * uy * (-fne + fnw + fse - fsw + 4 * V) + ux * ux * (-fn - fne - fnw - fs - fse - fsw + 2 * NE - 6 * P) + uy * uy * ((-fe - fne - fnw - fse - fsw - fw - 2 * NE - 6 * P) + 3 * ux * ux * rho)));
-
-        fnw += 2 * P + NP + V - UP + RIGHT;
-        fw += -P - 2 * NP + NE - 2 * RIGHT;
-        fsw += 2 * P + NP - V + UP + RIGHT;
-        fs += -P - 2 * NP - NE - 2 * UP;
-        fse += 2 * P + NP + V + UP - RIGHT;
-        fe += -P - 2 * NP + NE + 2 * RIGHT;
-        fne += 2 * P + NP - V - UP - RIGHT;
-        fn += -P - 2 * NP - NE + 2 * UP;
-        fc += (4 * (-P + NP));
-
-        fstar[_C] = fc;
-        fstar[_E] = fe;
-        fstar[_W] = fw;
-        fstar[_N] = fn;
-        fstar[_S] = fs;
-        fstar[_NE] = fne;
-        fstar[_NW] = fnw;
-        fstar[_SW] = fsw;
-        fstar[_SE] = fse;
       }
-      else { // bounce back
-        fstar[_E] = c[AR(x,y, _W)];
-        fstar[_W] = c[AR(x,y, _E)];
-        fstar[_N] = c[AR(x,y, _S)];
-        fstar[_S] = c[AR(x,y, _N)];
-        fstar[_NE] = c[AR(x,y, _SW)];
-        fstar[_NW] = c[AR(x,y, _SE)];
-        fstar[_SW] = c[AR(x,y, _NE)];
-        fstar[_SE] = c[AR(x,y, _NW)];
+      // 1. makro
+      rho = 0;
+      ux = 0;
+      uy = 0;
+      for (i = 0; i < F; i++)
+      {
+        rho += c[AR(x, y, i)];
+        ux += c[AR(x, y, i)] * cx[i];
+        uy += c[AR(x, y, i)] * cy[i];
       }
-      // dlaczego przeciwny?????
-      xp = (x == LX - 1) ? 0 : x + 1; 
+      ux /= rho;
+      uy /= rho;
+      // save macro to array
+      Rho[ARM(x, y)] = rho;
+      Ux[ARM(x, y)] = ux;
+      Uy[ARM(x, y)] = uy;
+
+      // 2. kolizja
+      if (!map[ARM(x, y)])
+      {
+        double fi_E = c[AR(x, y, _E)];
+        double fi_W = c[AR(x, y, _W)];
+        double fi_S = c[AR(x, y, _S)];
+        double fi_N = c[AR(x, y, _N)];
+        double fi_SE = c[AR(x, y, _SE)];
+        double fi_SW = c[AR(x, y, _SW)];
+        double fi_NE = c[AR(x, y, _NE)];
+        double fi_NW = c[AR(x, y, _NW)];
+
+        double feq_E = fEq(_E, rho, ux, uy);
+        double feq_W = fEq(_W, rho, ux, uy);
+        double feq_S = fEq(_S, rho, ux, uy);
+        double feq_N = fEq(_N, rho, ux, uy);
+        double feq_SE = fEq(_SE, rho, ux, uy);
+        double feq_SW = fEq(_SW, rho, ux, uy);
+        double feq_NE = fEq(_NE, rho, ux, uy);
+        double feq_NW = fEq(_NW, rho, ux, uy);
+
+        double C = .18; // Smagorinsky constant
+        double Q = (fi_E - feq_E + fi_W - feq_W + fi_NE - feq_NE + fi_SE - feq_SE + fi_NW - feq_NW + fi_SW - feq_SW) *
+                       (fi_E - feq_E + fi_W - feq_W + fi_NE - feq_NE + fi_SE - feq_SE + fi_NW - feq_NW + fi_SW - feq_SW) +
+                   (fi_S - feq_S + fi_N - feq_N + fi_NE - feq_NE + fi_SE - feq_SE + fi_NW - feq_NW + fi_SW - feq_SW) *
+                       (fi_S - feq_S + fi_N - feq_N + fi_NE - feq_NE + fi_SE - feq_SE + fi_NW - feq_NW + fi_SW - feq_SW) +
+                   2.f * (fi_NE - feq_NE - (fi_SE - feq_SE + fi_NW - feq_NW) + fi_SW - feq_SW) *
+                       (fi_NE - feq_NE - (fi_SE - feq_SE + fi_NW - feq_NW) + fi_SW - feq_SW);
+
+        double tau_t = .5 * (sqrt(tau * tau + C * C * sqrt(648. * Q) / rho) + tau);
+
+        for (i = 0; i < F; i++)
+          fstar[i] = (1. - 1. / tau_t) * c[AR(x, y, i)] + 1. / tau_t * fEq(i, rho, ux, uy);
+      }
+      else
+      {
+        // Bounce-back BC ~ wall
+        fstar[_E] = c[AR(x, y, _W)];
+        fstar[_W] = c[AR(x, y, _E)];
+        fstar[_S] = c[AR(x, y, _N)];
+        fstar[_N] = c[AR(x, y, _S)];
+        fstar[_NE] = c[AR(x, y, _SW)];
+        fstar[_NW] = c[AR(x, y, _SE)];
+        fstar[_SE] = c[AR(x, y, _NW)];
+        fstar[_SW] = c[AR(x, y, _NE)];
+      }
+      // 3. & 4. periodic BC & Streaming
+      // BC
+      xp = (x == LX - 1) ? 0 : x + 1;
       yp = (y == LY - 1) ? 0 : y + 1;
-      xm = (x == 0) ? LX - 1 : x - 1; 
-      ym = (y == 0) ? LY - 1 : y - 1; 
+      xm = (x == 0) ? LX - 1 : x - 1;
+      ym = (y == 0) ? LY - 1 : y - 1;
+
+      // Streaming
       tc[AR(x, y, _C)] = fstar[_C];
-      tc[AR(x,yp, _N)] = fstar[_N];
-      tc[AR(x,ym, _S)] = fstar[_S];
-      tc[AR(xm,y, _W)] = fstar[_W]; 
-      tc[AR(xp,y, _E)] = fstar[_E];
-      tc[AR(xp,yp, _NE)] = fstar[_NE];
-      tc[AR(xp,ym, _SE)] = fstar[_SE];
-      tc[AR(xm,yp, _NW)] = fstar[_NW];  
-      tc[AR(xm,ym, _SW)] = fstar[_SW];
+      tc[AR(x, yp, _N)] = fstar[_N];
+      tc[AR(x, ym, _S)] = fstar[_S];
+      tc[AR(xm, y, _W)] = fstar[_W];
+      tc[AR(xp, y, _E)] = fstar[_E];
+      tc[AR(xp, yp, _NE)] = fstar[_NE];
+      tc[AR(xp, ym, _SE)] = fstar[_SE];
+      tc[AR(xm, yp, _NW)] = fstar[_NW];
+      tc[AR(xm, ym, _SW)] = fstar[_SW];
     }
 }
-
 double PHI(double x){
    return 0.5*(1. + sin(2*M_PI*x));
 }
@@ -153,21 +160,30 @@ void setInitialConditions(double *c, double rhoi, double uxi, double uyi){
   int x,y,i;
   for (y = 0; y < LY; y++){
     for (x = 0; x < LX ; x++){ 
+
       for (i = 0; i < F; i++){
         c[AR(x,y,i)] = fEq(i, rhoi, uxi, uyi);
         Rho[ARM(x,y)] = rhoi;
         Ux[ARM(x,y)] = uxi;
         Uy[ARM(x,y)] = uyi;
       }
+
       map[ARM(x,y)] = 0;
-      if ( ( x==0)  || (x == LX-1) || (y == 0)){
+      /*if ( ( x==0)  || (x == LX-1) || (y == 0)){
         map[ARM(x,y)] = 1;
         Rho[ARM(x,y)] = 0.;
         Ux[ARM(x,y)] = 0.;
         Uy[ARM(x,y)] = 0.;
-      }
-      if ((x > 10) || (x < 25) && (y > 10) || (y < 25))
+      }*/
+      if ((y == 0) || (y == LY-1))
       {
+        map[ARM(x, y)] = 1;
+        Rho[ARM(x, y)] = 0.;
+        Ux[ARM(x, y)] = 0.;
+        Uy[ARM(x, y)] = 0.;
+      }
+
+      if((x >= .5*(LX*.5-A)) && (x < .5*(LX*.5+A)) && (y > .5*(LY-A)) && (y < .5*(LY+A))) {
         map[ARM(x, y)] = 1;
         Rho[ARM(x, y)] = 0.;
         Ux[ARM(x, y)] = 0.;
@@ -250,7 +266,7 @@ int main(int argc, char **argv){
     else
       collideAndStream(cells, tmp_cells);
     iter++;
-    if (iter % 10000 == 0) dumpStateVTK("state",iter);
+    if (iter % 1000 == 0) dumpStateVTK("state",iter);
 /*
     for (i = 0; i < LY; i++){
       for(j = 0; j < LY; j++) {

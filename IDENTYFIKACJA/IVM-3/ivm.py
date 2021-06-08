@@ -1,5 +1,4 @@
 from math import pow, exp
-from saveToFile import saveToFile as save
 
 Q = 238_000.0
 R = 8.3144
