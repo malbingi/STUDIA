@@ -10,7 +10,8 @@ def call(vector_a):
         for j in range(len(dict_experiment[i])):
             experiment = dict_experiment[i][j]
             formula, boolean = ivm_calculations(vector_a, T, epsilon_dot, time)
-            if abs(formula - pow(10,8))*100 > pow(10,13) or boolean:
+            #if abs(formula - pow(10,8))*100 > pow(10,13) or boolean:
+            if formula < pow(10,8) or boolean:
                 value_to_be_divided_by_m += (abs(formula - pow(10,8)) * 100)
             else:
                 value_to_be_divided_by_m += pow((experiment-formula)/experiment, 2)

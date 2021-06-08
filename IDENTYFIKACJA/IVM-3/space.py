@@ -2,7 +2,7 @@ import random as r
 import numpy as np
 from func import call
 
-W = 0.5
+W = 0.5 # 0,1 lub 1,0
 c1 = 2.0  #1,5 lub 1,0
 c2 = 2.0  # 1,5 lub 1,0
 
